@@ -5,10 +5,10 @@ from api_v1.database.engine import engine, session_depends
 from api_v1.models.people_model import PeopleModel, Base
 from api_v1.simple_utills.error_message import check_users
 
-router = APIRouter(prefix='/peoples', tags=['Пользователи'])
+router = APIRouter(prefix='/api/v1/peoples', tags=['Пользователи'])
 
 @router.get(
-        '/people', 
+        '/', 
         summary='Получить всех пользователей',
         )
 async def get_all_peoples(session: session_depends) -> list[PeopleSchemaID]:
@@ -20,17 +20,17 @@ async def get_all_peoples(session: session_depends) -> list[PeopleSchemaID]:
     return all_results
 
 @router.get(
-        '/people/{id}',
+        '/{peopl_id}',
         summary='Получить пользователя по id',
         )
-async def get_people_by_id(id: int, session: session_depends):
-    data = await session.get(PeopleModel, id)
-    await check_users(data, id=id)
+async def get_people_by_id(people_id: int, session: session_depends):
+    data = await session.get(PeopleModel, people_id)
+    await check_users(data, id=people_id)
 
     return data
 
 @router.post(
-        '/people',
+        '/',
         summary='Добавить пользователя',
         )
 async def add_people(data: PeopleSchema, session: session_depends):
@@ -50,16 +50,17 @@ async def add_people(data: PeopleSchema, session: session_depends):
             "age": new_people.age,
             "email": new_people.email
             },
-        "status": 200
+        "status": 'OK',
+        "code": 200,
     }
 
 @router.put(
-        "/people",
+        "/{people_id}",
         summary='Изменить пользователя',
         )
-async def update_people(data: PeopleSchemaID, session: session_depends):
-    user = await session.get(PeopleModel, data.id)
-    await check_users(user, id=data.id)
+async def update_people(people_id: int, data: PeopleSchema, session: session_depends):
+    user = await session.get(PeopleModel, people_id)
+    await check_users(user, id=people_id)
     
     user.name = data.name
     user.email = data.email
@@ -71,16 +72,17 @@ async def update_people(data: PeopleSchemaID, session: session_depends):
             "name": user.name,
             "age": user.age,
             "email": user.email},
-        "status": 200,
+        "status": 'OK',
+        "code": 200,
         "message": 'user was changed success'
     }
 
-@router.delete("/people/{id}", 
+@router.delete("/{people_id}", 
             summary='Удалить пользователя',
         )
-async def delete_people(id: int, session: session_depends):
-    user = await session.get(PeopleModel, id)
-    await check_users(user, id=id)
+async def delete_people(people_id: int, session: session_depends):
+    user = await session.get(PeopleModel, people_id)
+    await check_users(user, id=people_id)
 
     name = user.name
     user_id = user.id
@@ -90,8 +92,25 @@ async def delete_people(id: int, session: session_depends):
         "data": {
             "name": name,
             "id": user_id,
-            "status": 200
             },
-        "status": 200,
+        "status": 'OK',
+        "code": 200,
         "message": 'user was delete success'
+    }
+
+@router.patch('/rename/{people_id}',
+              summary="Переименовать пользователя"
+              )
+async def rename_people(people_id: int, people_name: str, session: session_depends):
+    user = await session.get(PeopleModel, people_id)
+    await check_users(user, id)
+    user.name = people_name
+    await session.commit()
+    return {
+        "status": 'OK',
+        "code": 200,
+        "data":{
+            "user_id": user.id,
+            "new_name": user.name
+        }
     }

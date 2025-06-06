@@ -1,11 +1,36 @@
 from pydantic import BaseModel, Field, EmailStr, ConfigDict
 
-class PeopleSchema(BaseModel):
-    name: str = Field(max_length=80)
-    age: int | None = Field(ge=0, le=1000)
-    email: EmailStr
+from pydantic import BaseModel, Field, EmailStr, ConfigDict
 
-    model_config = ConfigDict(extra='forbid')
+class PeopleSchema(BaseModel):
+    name: str = Field(
+        max_length=80,
+        description="Полное имя пользователя (макс. 80 символов)",
+        example="Имя Фамилия",
+    )
+    age: int | None = Field(
+        default=None,
+        ge=0,
+        le=100,
+        description="Возраст (от 0 до 100). Необязательное поле.",
+        example=35,
+    )
+    email: EmailStr = Field(
+        description="Действующий email-адрес",
+        example="mail@example.com",
+    )
+
+    model_config = ConfigDict(
+        extra='forbid',
+        json_schema_extra={
+            "description": "Данные пользователя для регистрации или обновления",
+            "examples": [{
+                "name": "Имя Фамилия",
+                "age": 40,
+                "email": "mail@example.com",
+            }],
+        }
+    )
 
 class PeopleSchemaID(PeopleSchema):
     id: int
