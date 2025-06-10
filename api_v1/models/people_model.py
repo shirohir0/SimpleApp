@@ -11,3 +11,6 @@ class PeopleModel(Base):
     name: Mapped[str]
     age: Mapped[int]
     email: Mapped[str]
+    # mother: Mapped[]
+    # father: Mapped[]
+    # childs: Mapped[]
