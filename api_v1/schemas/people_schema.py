@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel, Field, EmailStr, ConfigDict
 
 from pydantic import BaseModel, Field, EmailStr, ConfigDict
@@ -20,17 +21,35 @@ class PeopleSchema(BaseModel):
         example="mail@example.com",
     )
 
-    model_config = ConfigDict(
-        extra='forbid',
-        json_schema_extra={
-            "description": "Данные пользователя для регистрации или обновления",
-            "examples": [{
-                "name": "Имя Фамилия",
-                "age": 40,
-                "email": "mail@example.com",
-            }],
-        }
+    gender: str = Field(
+        max_length=20,
+        description="Пол",
+        example="Мужской"
     )
+
+    mother: Optional[int] | None = Field(
+        default=None,
+        description="ID Матери",
+        example=1,
+    )
+
+    father: Optional[int] | None = Field(
+        default=None,
+        description="ID Отца",
+        example=2,
+    )
+
+    # model_config = ConfigDict(
+    #     extra='forbid',
+    #     json_schema_extra={
+    #         "description": "Данные пользователя для регистрации или обновления",
+    #         "examples": [{
+    #             "name": "Имя Фамилия",
+    #             "age": 40,
+    #             "email": "mail@example.com",
+    #         }],
+    #     }
+    # )
 
 class PeopleSchemaID(PeopleSchema):
     id: int
