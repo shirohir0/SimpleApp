@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from api_v1.schemas.people_schema import PeopleSchema, PeopleSchemaID
 from api_v1.database.engine import session_depends
-from api_v1.service.people import create_people, get_people
+from api_v1.services import people
 
 router = APIRouter(prefix='/api/v1/peoples', tags=['Пользователи'])
 
@@ -16,86 +16,45 @@ router = APIRouter(prefix='/api/v1/peoples', tags=['Пользователи'])
 #     await check_users(all_results)
 
 #     return all_results
-
-@router.post(
-    '/',
-    summary='Создать нового пользователя'
+@router.get(
+        '/',
+        summary='Получить всех пользователей'
 )
-async def create_new_people(data: PeopleSchema, session: session_depends):
-    result = await create_people(data, session)
-    return result
+async def get_all_people(session: session_depends):
+    return await people.get_all(session)
 
 @router.get(
     '/{id}',
     summary='Получить пользователя по ID'
 )
 async def get_people_by_id(id: int, session: session_depends):
-    result = await get_people(id, session)
+    result = await people.get_people(id, session)
 
     return result
 
+@router.post(
+    '/',
+    summary='Создать нового пользователя'
+)
+async def create_new_people(data: PeopleSchema, session: session_depends):
+    result = await people.create_people(data, session)
+    return result
 
+@router.put(
+    '/{id}',
+    summary='Изменить все данные пользователя'
+)
+async def put_people_data(id: int, data: PeopleSchema, session: session_depends):
+    result = await people.put_people(id, data, session)
+    return result
 
-# @router.get(
-#         '/{peopl_id}',
-#         summary='Получить пользователя по id',
-#         )
-# async def get_people_by_id(people_id: int, session: session_depends):
-#     data = await session.get(PeopleModel, people_id)
-#     await check_users(data, id=people_id)
-
-#     return data
-
-# @router.post(
-#         '/',
-#         summary='Добавить пользователя',
-#         )
-# async def add_people(data: PeopleSchema, session: session_depends):
-#     session.flush()
-#     new_people = PeopleModel(
-#         name = data.name,
-#         age =  data.age,
-#         email = data.email,
-#         gender = data.gender
-#     )
-
-#     session.add(new_people)
-#     await session.commit()
-#     # await session.refresh(new_people)
-#     return {
-#         "data": {
-#             "id": new_people.id,
-#             "name": new_people.name,
-#             "age": new_people.age,
-#             "email": new_people.email
-#             },
-#         "status": 'OK',
-#         "code": 200,
-#     }
-
-# @router.put(
-#         "/{people_id}",
-#         summary='Изменить пользователя',
-#         )
-# async def update_people(people_id: int, data: PeopleSchema, session: session_depends):
-#     user = await session.get(PeopleModel, people_id)
-#     await check_users(user, id=people_id)
-    
-#     user.name = data.name
-#     user.email = data.email
-#     user.age = data.age
-#     await session.commit()
-#     return {
-#         "data": {
-#             "id": user.id,
-#             "name": user.name,
-#             "age": user.age,
-#             "email": user.email},
-#         "status": 'OK',
-#         "code": 200,
-#         "message": 'user was changed success'
-#     }
-
+@router.delete(
+        '/{id}',
+        summary='Удалить пользователя'
+)
+async def delet_people(id: int, session: session_depends):
+    result = await people.delete_people(id, session)
+    return result
 # @router.delete("/{people_id}", 
 #             summary='Удалить пользователя',
 #         )

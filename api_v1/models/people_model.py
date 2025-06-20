@@ -19,7 +19,8 @@ class PeopleModel(Base):
         "ParentsModel",
         back_populates="users",
         uselist=False,
-        foreign_keys="[ParentsModel.user_id]"
+        foreign_keys="[ParentsModel.user_id]",
+        cascade="all, delete-orphan", # Очень важная штука для удаления столбцов с зависимостями
 
     )
 
