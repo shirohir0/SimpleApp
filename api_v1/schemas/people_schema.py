@@ -30,13 +30,13 @@ class PeopleSchema(BaseModel):
     mother: Optional[int] | None = Field(
         default=None,
         description="ID Матери",
-        example=1,
+        example=0,
     )
 
     father: Optional[int] | None = Field(
         default=None,
         description="ID Отца",
-        example=2,
+        example=0,
     )
 
     # model_config = ConfigDict(
