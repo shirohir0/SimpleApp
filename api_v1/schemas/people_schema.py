@@ -1,8 +1,6 @@
 from typing import Optional
 from pydantic import BaseModel, Field, EmailStr, ConfigDict
 
-from pydantic import BaseModel, Field, EmailStr, ConfigDict
-
 class PeopleSchema(BaseModel):
     name: str = Field(
         max_length=80,

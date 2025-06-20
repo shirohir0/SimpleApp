@@ -52,6 +52,6 @@ async def put_people_data(id: int, data: PeopleSchema, session: session_depends)
         '/{id}',
         summary='Удалить пользователя'
 )
-async def delet_people(id: int, session: session_depends):
+async def delete_people(id: int, session: session_depends):
     result = await people.delete_people(id, session)
     return result
