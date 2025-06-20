@@ -1,7 +1,7 @@
 from fastapi import APIRouter
-from api_v1.schemas.people_schema import PeopleSchema, PeopleSchemaID
+from api_v1.schemas.people_schema import PeopleSchema
 from api_v1.database.engine import session_depends
-from api_v1.services import people
+from api_v1.services import people, gender
 
 router = APIRouter(prefix='/api/v1/peoples', tags=['Пользователи'])
 
@@ -55,40 +55,3 @@ async def put_people_data(id: int, data: PeopleSchema, session: session_depends)
 async def delet_people(id: int, session: session_depends):
     result = await people.delete_people(id, session)
     return result
-# @router.delete("/{people_id}", 
-#             summary='Удалить пользователя',
-#         )
-# async def delete_people(people_id: int, session: session_depends):
-#     user = await session.get(PeopleModel, people_id)
-#     await check_users(user, id=people_id)
-
-#     name = user.name
-#     user_id = user.id
-#     await session.delete(user)
-#     await session.commit()
-#     return {
-#         "data": {
-#             "name": name,
-#             "id": user_id,
-#             },
-#         "status": 'OK',
-#         "code": 200,
-#         "message": 'user was delete success'
-#     }
-
-# @router.patch('/rename/{people_id}',
-#               summary="Переименовать пользователя"
-#               )
-# async def rename_people(people_id: int, people_name: str, session: session_depends):
-#     user = await session.get(PeopleModel, people_id)
-#     await check_users(user, id)
-#     user.name = people_name
-#     await session.commit()
-#     return {
-#         "status": 'OK',
-#         "code": 200,
-#         "data":{
-#             "user_id": user.id,
-#             "new_name": user.name
-#         }
-#     }

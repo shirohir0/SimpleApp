@@ -22,6 +22,7 @@ async def get_all(session: AsyncSession):
     )
     result = await session.execute(stmt)
     person = result.scalars().all()
+
     if person:
         return person
     return HTTPException(status_code=404, detail="Users not found")
@@ -43,9 +44,10 @@ async def get_people(id: int, session: AsyncSession):
             )
     result = await session.execute(stmt)
     result = result.scalars().first()
+
     if result:
         data = {
-            "statue": 200,
+            "status": 200,
             "result": result
         }
         return data
@@ -72,7 +74,9 @@ async def create_people(data: PeopleSchema, session: AsyncSession):
         father_id = data.father if data.father else None
     ) if data.mother or data.father else None
     session.add(insert_parents) if insert_parents else None
+
     await session.commit()
+
     return {
         "status": 200,
         "data": data
@@ -105,10 +109,10 @@ async def put_people(id: int, data: PeopleSchema, session: AsyncSession):
         person.parents.mother_id = data.mother if data.mother else None
         person.parents.father_id = data.father if data.father else None
     elif data.mother or data.father:
-        print('asdadasdasd')
         session.add(ParentsModel(user_id=id, mother_id=data.mother, father_id=data.father))
 
     await session.commit()
+
     return {
         "update": data, 
         "status": 200
@@ -117,6 +121,9 @@ async def put_people(id: int, data: PeopleSchema, session: AsyncSession):
 async def delete_people(id: int, session: AsyncSession):
     stmt = (
         select(PeopleModel)
+        .options(
+            selectinload(PeopleModel.gender)
+        )
         .options(
             selectinload(PeopleModel.parents)
             .joinedload(ParentsModel.mother)
@@ -131,30 +138,37 @@ async def delete_people(id: int, session: AsyncSession):
     )
     result = await session.execute(stmt)
     data = result.scalars().first()
-    to_return = {
-        "id": data.id,
-        "name": data.name,
-        "age": data.age,
-        "email": data.email,
-        "gender": data.gender.gender,
-        "parents":{
-            "mother": {
-                "name": data.parents.mother.name,
-                "age": data.parents.mother.age,
-                "email": data.parents.father.email
-            },
-            "father": {
-                "name": data.parents.father.name,
-                "age": data.parents.father.age,
-                "email": data.parents.father.email
-            }
+    if data:
+        to_return = {
+            "id": data.id,
+            "name": data.name,
+            "age": data.age,
+            "email": data.email,
+            "gender": data.gender.gender,
+            "parents": None
         }
-    }
-    await session.delete(data)
-    await session.commit()
-    # await session.commit()
-    return {
-        "data": to_return,
-        "status": 200,
-        "message": f'User {to_return["name"]} deleted'
-    }
+        if data.parents:
+            to_return["parents"] = {
+                "mother": {
+                    "name": data.parents.mother.name,
+                    "age": data.parents.mother.age,
+                    "email": data.parents.mother.email
+                } if data.parents.mother else None, 
+                "father": {
+                    "name": data.parents.father.name,
+                    "age": data.parents.father.age,
+                    "email": data.parents.father.email
+                } if data.parents.father else None
+            }
+
+        await session.delete(data)
+
+        await session.commit()
+
+        return {
+            "data": to_return,
+            "status": 200,
+            "message": f'User {to_return["name"]} deleted'
+        }
+    return HTTPException(404, detail="User not found")
+

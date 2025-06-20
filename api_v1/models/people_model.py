@@ -13,7 +13,7 @@ class PeopleModel(Base):
     name: Mapped[str]
     age: Mapped[int]
     email: Mapped[str]
-    gender_id: Mapped[int] = mapped_column(ForeignKey("people_genders.id", ondelete="SET NULL"))
+    gender_id: Mapped[int] = mapped_column(ForeignKey("people_genders.id", ondelete="SET NULL"), nullable=True)
     gender: Mapped["GendersModel"] = relationship("GendersModel", back_populates="peoples")
     parents: Mapped[Optional["ParentsModel"]] = relationship(
         "ParentsModel",
